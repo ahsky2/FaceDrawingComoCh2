@@ -30,11 +30,11 @@ void setup() {
   func = new NonLinearFunc(0.0, 0.0, 256.0, 256.0, 1.0);
   func.make(interval);
   
-  println(func.count);
+//  println(func.count);
 }
 
 void draw() {
-  println(index);
+//  println(index);
   point(x + interval * index, height - func.getValue(index));
   index = index + 1;
   if (index > func.count - 1) {
@@ -83,6 +83,11 @@ class NonLinearFunc {
   }
   
   float getValue(int index) {
-    return values[index];
+    if (index < count) {
+//      println(index);
+      return values[index];
+    } else {
+      return values[count -1];
+    }
   }
 }
