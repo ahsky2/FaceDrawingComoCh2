@@ -30,6 +30,8 @@ class ComicFrame {
 
     defaultWidth = (width - (marginRight + marginLeft + 5 * spacing)) / 4;
     defaultHeight = (height - (marginTop + marginBottom + 4 * spacing)) / 3;
+    
+    println(defaultWidth + "," + defaultHeight);
   }
   
   void setFrame() {

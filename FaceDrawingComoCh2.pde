@@ -1,7 +1,30 @@
 import java.util.*;
 
+// Como CH2
 int windowWidth = 720;
 int windowHeight = 480;
+int marginTop = 16;
+int marginBottom = 6;
+int marginLeft = 2;
+int marginRight = 2;
+int spacing = 8;
+int frameWidthVarying = 85;
+int frameHeightVarying = 70;
+
+//// Happy Squre
+//int windowWidth = 1280;
+//int windowHeight = 720;
+//int marginTop = 0;
+//int marginBottom = 0;
+//int marginLeft = 0;
+//int marginRight = 0;
+//int spacing = 12;
+//int frameWidthVarying = 150;
+//int frameHeightVarying = 100;
+
+boolean isRecording = false; // for video
+int transitionIndex = 0;
+int transitionCount = 3; // # of transition
 
 int imgCount = 87;
 int imgIndex = 1;
@@ -19,10 +42,7 @@ Frame[] savedFrames;
 int[] savedFrameIndexes;
 int[] savedIndexes;
 
-boolean isRecording = true; // for video
-int transitionIndex = 0;
-int transitionCount = 3; // # of transition
-
+boolean isFull = false;
 
 TimerCallback callback = new BaseTimerCallback(1000*30, true) {
   void execute() {
@@ -45,7 +65,7 @@ TimerCallback callback = new BaseTimerCallback(1000*30, true) {
           } else {
             boolean isSame = true;
             while(isSame) {
-              frameIndex = round(random(0, frames.length-1));
+              frameIndex = floor(random(0, frames.length-0.01));
               
               isSame = false;
               for(int j = 0; j < i; j++) {
@@ -59,7 +79,25 @@ TimerCallback callback = new BaseTimerCallback(1000*30, true) {
                 break;
               }
             }
-            popArt.resetFrame(frames[savedFrameIndexes[i]].x, frames[savedFrameIndexes[i]].y, frames[savedFrameIndexes[i]].width, frames[savedFrameIndexes[i]].height);
+            
+            Frame tempFrame = frames[savedFrameIndexes[i]];
+        
+            if (i == popArtCount - 1) {
+              if ((transitionIndex % 3) == 1) {
+//              if (!isFull) {
+//                if (floor(random(3 - 0.01)) == 0) {
+//                  isFull = true;
+                  tempFrame.x = comicFrame.marginLeft + comicFrame.spacing;
+                  tempFrame.y = comicFrame.marginTop + comicFrame.spacing;
+                  tempFrame.width = windowWidth - (comicFrame.marginLeft + comicFrame.marginRight + 2 * comicFrame.spacing);
+                  tempFrame.height = windowHeight - (comicFrame.marginTop + comicFrame.marginBottom + 2 * comicFrame.spacing);
+//                }
+//              } else {
+//                isFull = false;
+              }
+            }
+            popArt.resetFrame(tempFrame.x, tempFrame.y, tempFrame.width, tempFrame.height);
+
     //      int index = round(random(0, imgCount-1));
             index = (popArt.getImgIndex() + 1) % imgCount;
           }
@@ -97,7 +135,22 @@ TimerCallback callback = new BaseTimerCallback(1000*30, true) {
           }
         }
         
-        popArt.resetFrame(frames[savedFrameIndexes[i]].x, frames[savedFrameIndexes[i]].y, frames[savedFrameIndexes[i]].width, frames[savedFrameIndexes[i]].height);
+        Frame tempFrame = frames[savedFrameIndexes[i]];
+        
+        if (i == popArtCount - 1) {
+          if (!isFull) {
+            if (floor(random(3 - 0.01)) == 0) {
+              isFull = true;
+              tempFrame.x = comicFrame.marginLeft + comicFrame.spacing;
+              tempFrame.y = comicFrame.marginTop + comicFrame.spacing;
+              tempFrame.width = windowWidth - (comicFrame.marginLeft + comicFrame.marginRight + 2 * comicFrame.spacing);
+              tempFrame.height = windowHeight - (comicFrame.marginTop + comicFrame.marginBottom + 2 * comicFrame.spacing);
+            }
+          } else {
+            isFull = false;
+          }
+        }
+        popArt.resetFrame(tempFrame.x, tempFrame.y, tempFrame.width, tempFrame.height);
 
 //        int index = round(random(0, imgCount-1));
         int index = (popArt.getImgIndex() + 1) % imgCount;
@@ -114,13 +167,25 @@ boolean isSave = false;
 int saveIndex = 0;
 int saveCount = 5000;
 
+boolean sketchFullScreen() {
+  if(isRecording) {
+    return false;
+  }
+  
+  return true;
+}
+
 void setup() {
   frameRate(30);
-  size(windowWidth, windowHeight, P2D);
+  if(isRecording) {
+    size(windowWidth, windowHeight, P2D);
+  } else {
+    size(displayWidth, displayHeight, P2D);
+  }
   smooth();
   
   for(int i = 0; i < imgCount; i++) {
-    imgs[i] = loadImage("PFD_720x480_" + (i + imgIndex + 100 + "").substring(1) + ".jpg");
+    imgs[i] = loadImage("PFD_" + windowWidth + "x"+ windowHeight + "_" + (i + imgIndex + 100 + "").substring(1) + ".jpg");
     if (imgs[i] == null)  {
       exit();
     }
@@ -129,7 +194,7 @@ void setup() {
   func = new NonLinearFunc(0.0, 0.0, 255.0, 255.0, 1.0);
   funcCount = func.make(0.5); // alpha value
   
-  comicFrame = new ComicFrame(width, height, 16, 6, 2, 2, 50, 50);
+  comicFrame = new ComicFrame(windowWidth, windowHeight, marginTop, marginBottom, marginLeft, marginRight, frameWidthVarying, frameHeightVarying);
   frames = comicFrame.getFrame();
   
   savedFrames = new Frame[frames.length];
