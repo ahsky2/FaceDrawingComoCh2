@@ -6,6 +6,7 @@ class PopArt {
   float height;
   int imgCount = 2;
   PImage[] imgs = new PImage[imgCount]; // [front image, back image]
+  int[] imgIndexes = new int[imgCount];
   int imgIndex = 0; // 0 : front image
   int imgAddIndex = 0;
   boolean isChanging = false;
@@ -54,7 +55,8 @@ class PopArt {
 //      fadeInCount = fadeOutCount = func.count;
   }
 
-  void addImage(PImage img) {
+  void addImage(PImage img, int index) {
+    imgIndexes[imgAddIndex] = index;
     
     imgs[imgAddIndex] = createImage((int)trgWidth, (int)trgHeight, ARGB);
     
@@ -80,10 +82,10 @@ class PopArt {
 
   void update() {
     if (isChanging) {
-      x = map(func.getValue(index), func.getValue(0), func.getValue(func.count), srcX, trgX);
-      y = map(func.getValue(index), func.getValue(0), func.getValue(func.count), srcY, trgY);
-      width = map(func.getValue(index), func.getValue(0), func.getValue(func.count), srcWidth, trgWidth);
-      height = map(func.getValue(index), func.getValue(0), func.getValue(func.count), srcHeight, trgHeight);
+      x = map(func.getValue(index), func.getValue(0), func.getValue(func.count - 1), srcX, trgX);
+      y = map(func.getValue(index), func.getValue(0), func.getValue(func.count - 1), srcY, trgY);
+      width = map(func.getValue(index), func.getValue(0), func.getValue(func.count - 1), srcWidth, trgWidth);
+      height = map(func.getValue(index), func.getValue(0), func.getValue(func.count - 1), srcHeight, trgHeight);
       
       fadeOutAlpha = func.getValue(func.count - index - 1);
       fadeInAlpha = func.getValue(index);
@@ -116,6 +118,47 @@ class PopArt {
 //          imgIndex = (imgIndex + 1) % imgCount;
 //        }
 //      }
+    }
+  }
+
+  void display() {
+    
+    fill(255);
+    noStroke();
+    rect(x, y, width, height);
+
+    if (isChanging) {
+//      println("changing");
+      tint(255, fadeOutAlpha); // alpha value
+//      image(imgs[imgIndex], x, y);
+//      image(imgs[imgIndex].get(0, 0, (int)width, (int)height), x, y);
+      textureMode(IMAGE);
+      
+      float tempWidth = (srcWidth < width) ? srcWidth : width;
+      float tempHeight = (srcHeight < height) ? srcHeight : height;
+
+      beginShape();
+      texture(imgs[imgIndex]);
+      vertex(x, y, 0, 0);
+      vertex(x + tempWidth, y, tempWidth, 0);
+      vertex(x + tempWidth, y + tempHeight, tempWidth, tempHeight);
+      vertex(x, y + tempHeight, 0, tempHeight);
+      endShape();
+
+      tint(255, fadeInAlpha);
+//      image(imgs[(imgIndex + 1) % imgCount], x, y);
+//      image(imgs[(imgIndex + 1) % imgCount].get(0, 0, (int)width, (int)height), x, y);
+
+      tempWidth = (trgWidth < width) ? trgWidth : width;
+      tempHeight = (trgHeight < height) ? trgHeight : height;
+      
+      beginShape();
+      texture(imgs[(imgIndex + 1) % imgCount]);
+      vertex(x, y, 0, 0);
+      vertex(x + tempWidth, y, tempWidth, 0);
+      vertex(x + tempWidth, y + tempHeight, tempWidth, tempHeight);
+      vertex(x, y + tempHeight, 0, tempHeight);
+      endShape();
       
       index++;
       if (index > func.count - 1) {
@@ -123,39 +166,24 @@ class PopArt {
         index = 0;
         imgIndex = (imgIndex + 1) % imgCount;
       }
+    } 
+    else {
+      noTint();
+//      image(imgs[imgIndex], x, y);
+      textureMode(IMAGE);
+      beginShape();
+      texture(imgs[imgIndex]);
+      vertex(x, y, 0, 0);
+      vertex(x + width, y, width, 0);
+      vertex(x + width, y + height, width, height);
+      vertex(x, y + height, 0, height);
+      endShape();
     }
-  }
-
-  void display() {
-
-    fill(255);
+    
+    fill(255, 0);
     stroke(0);
     strokeWeight(2);
     rect(x, y, width, height);
-
-    if (isChanging) {
-//      println("changing");
-      tint(255, fadeOutAlpha); // alpha value
-//      image(imgs[imgIndex], x, y);
-      image(imgs[imgIndex].get(0, 0, (int)width, (int)height), x, y);
-//      textureMode(IMAGE);
-//      beginShape();
-//      texture(imgs[imgIndex]);
-//      vertex(x, y, 0, 0);
-//      vertex(x + width, y, width, 0);
-//      vertex(x + width, y + height, width, height);
-//      vertex(x, y + height, 0, height);
-//      endShape();
-
-      tint(255, fadeInAlpha);
-//      image(imgs[(imgIndex + 1) % imgCount], x, y);
-      image(imgs[(imgIndex + 1) % imgCount].get(0, 0, (int)width, (int)height), x, y);
-    } 
-    else {
-      //noTint();
-      image(imgs[imgIndex], x, y);
-      
-    }
   }
 
   void transition() {
@@ -170,5 +198,9 @@ class PopArt {
 
   float fadeIn(int index, NonLinearFunc func) {
     return func.getValue(index);
+  }
+  
+  int getImgIndex() {
+    return imgIndexes[imgIndex];
   }
 }
