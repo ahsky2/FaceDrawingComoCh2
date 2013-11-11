@@ -1,30 +1,30 @@
 import java.util.*;
 
-// Como CH2
-int windowWidth = 720;
-int windowHeight = 480;
-int marginTop = 16;
-int marginBottom = 6;
-int marginLeft = 2;
-int marginRight = 2;
-int spacing = 8;
-int frameWidthVarying = 85;
-int frameHeightVarying = 70;
+//// Como CH2
+//int windowWidth = 720;
+//int windowHeight = 480;
+//int marginTop = 16;
+//int marginBottom = 6;
+//int marginLeft = 2;
+//int marginRight = 2;
+//int spacing = 8;
+//int frameWidthVarying = 85;
+//int frameHeightVarying = 70;
 
-//// Happy Squre
-//int windowWidth = 1280;
-//int windowHeight = 720;
-//int marginTop = 0;
-//int marginBottom = 0;
-//int marginLeft = 0;
-//int marginRight = 0;
-//int spacing = 12;
-//int frameWidthVarying = 150;
-//int frameHeightVarying = 100;
+// Happy Squre
+int windowWidth = 1280;
+int windowHeight = 720;
+int marginTop = 0;
+int marginBottom = 0;
+int marginLeft = 0;
+int marginRight = 0;
+int spacing = 12;
+int frameWidthVarying = 150;
+int frameHeightVarying = 100;
 
 boolean isRecording = false; // for video
 int transitionIndex = 0;
-int transitionCount = 3; // # of transition
+int transitionCount = 20; // # of transition
 
 int imgCount = 87;
 int imgIndex = 1;
@@ -44,7 +44,7 @@ int[] savedIndexes;
 
 boolean isFull = false;
 
-TimerCallback callback = new BaseTimerCallback(1000*30, true) {
+TimerCallback callback = new BaseTimerCallback(1000*20, true) {
   void execute() {
     if(isRecording) {
       if (transitionIndex < transitionCount) {
@@ -83,17 +83,17 @@ TimerCallback callback = new BaseTimerCallback(1000*30, true) {
             Frame tempFrame = frames[savedFrameIndexes[i]];
         
             if (i == popArtCount - 1) {
-              if ((transitionIndex % 3) == 1) {
-//              if (!isFull) {
-//                if (floor(random(3 - 0.01)) == 0) {
-//                  isFull = true;
+//              if ((transitionIndex % 3) == 1) {
+              if (!isFull) {
+                if (floor(random(3 - 0.01)) == 0) {
+                  isFull = true;
                   tempFrame.x = comicFrame.marginLeft + comicFrame.spacing;
                   tempFrame.y = comicFrame.marginTop + comicFrame.spacing;
                   tempFrame.width = windowWidth - (comicFrame.marginLeft + comicFrame.marginRight + 2 * comicFrame.spacing);
                   tempFrame.height = windowHeight - (comicFrame.marginTop + comicFrame.marginBottom + 2 * comicFrame.spacing);
-//                }
-//              } else {
-//                isFull = false;
+                }
+              } else {
+                isFull = false;
               }
             }
             popArt.resetFrame(tempFrame.x, tempFrame.y, tempFrame.width, tempFrame.height);
@@ -192,7 +192,9 @@ void setup() {
   }
   
   func = new NonLinearFunc(0.0, 0.0, 255.0, 255.0, 1.0);
-  funcCount = func.make(0.5); // alpha value
+  funcCount = func.make(2.0); // alpha value
+  // como ch2 : 0.5
+  // Happy Square : 2.0
   
   comicFrame = new ComicFrame(windowWidth, windowHeight, marginTop, marginBottom, marginLeft, marginRight, frameWidthVarying, frameHeightVarying);
   frames = comicFrame.getFrame();
